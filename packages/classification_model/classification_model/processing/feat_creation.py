@@ -4,60 +4,43 @@ Created on Sun Jan 26 09:58:06 2020
 
 @author: skyst
 """
-
-import numpy as np
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
 from classification_model.config import config
 
-class feature_creation(BaseEstimator, TransformerMixin):
+def feature_creation(X,y):
     
-    def __init__(self, features=None):
-        if not isinstance(features, list):
-            self.features = [features]
-        else:
-            self.features = features
-            
-    def fit(self, X, y=None ) -> 'feature_creation':
-
-        self.min_time_epoch = min(X['frame.time_epoch'])
-        
-        return self
-    
-    def transform(self, X, y=None) -> pd.DataFrame:
-        """Apply the transforms to the dataframe."""
-
         X = X.copy()
-        X = frame_time_epoch(X,self.min_time_epoch)
-        X, self.tcol = time(X)
-        X = activity_count(X, self.tcol)
-        X = activity_change(X, self.tcol)
-        #X = wlan_ra(X)
-        #X = wlan_da(X)
-        #X = wlan_ta(X)
-        #X = wlan_sa(X)
-        #X = wlan_ba_bm(X)
-        #X = wlan_bssid(X)
-        #X = wlan_mgt_fixed_current_ap(X)
+        min_time_epoch = min(X['frame.time_epoch'])
+        X = frame_time_epoch(X,min_time_epoch)
+        X, tcol = time(X)
+        X = activity_count(X, tcol)
+        X = activity_change(X, tcol)
+    
+        if( config.DOWNSAMPLE_DATA == True):
+            X,y = downsample(X, y)
+            print('data has been downsampled.')
+        
+        # Save until target is no longer needed in data.
+        X.drop( config.TARGET, axis=1, inplace=True)
        
-        return X
+        return X, y
 
-def frame_time_epoch(df, min_time_epoch):
+def frame_time_epoch(X, min_time_epoch):
     
-    df['frame.time_epoch'] -= min_time_epoch
+    X['frame.time_epoch'] -= min_time_epoch
          
-    return df
+    return X
 
-def time(df):
+def time(X):
     
-    df['passed1second'] = df['frame.time_epoch']//1
-    df['passed1second'] = df['passed1second'].astype(int)
+    X['passed1second'] = X['frame.time_epoch']//1
+    X['passed1second'] = X['passed1second'].astype(int)
     
     tcol = ['passed1second']
     
-    return df, tcol 
+    return X, tcol 
 
-def activity_count(df, tcol):
+def activity_count(X, tcol):
     
     icol = config.ID_FEATURES
     #icol = ['wlan.ra', 'wlan.da', 'wlan.ta', 'wlan.sa', 'wlan.wep.iv', 'wlan.wep.icv']
@@ -65,15 +48,15 @@ def activity_count(df, tcol):
     for ic in icol:
         for tc in tcol:
             new_id = ic +'_'+ tc  
-            df[new_id] = df[ic] + df[tc].astype(str)
-            encoder_dict = df[new_id].value_counts().to_dict()
-            df[new_id+'_count'] = df[new_id].map(encoder_dict)
-            df[new_id+'_count'].fillna(0, inplace=True)
-            df.drop(new_id, axis=1, inplace=True)
+            X[new_id] = X[ic] + X[tc].astype(str)
+            encoder_dict = X[new_id].value_counts().to_dict()
+            X[new_id+'_count'] = X[new_id].map(encoder_dict)
+            X[new_id+'_count'].fillna(0, inplace=True)
+            X.drop(new_id, axis=1, inplace=True)
     
-    return df
+    return X
 
-def activity_change(df, tcol):
+def activity_change(X, tcol):
     
     icol = config.ID_FEATURES
     
@@ -81,12 +64,12 @@ def activity_change(df, tcol):
         for tc in tcol:
             map_dict = {}
             new_id = ic + '_' + tc
-            time_set = list(set(df[tc]))
+            time_set = list(set(X[tc]))
             for i in range(1,len(time_set)):
-                temp_curr = df[df[tc]==time_set[i]][ic] + df[df[tc]==time_set[i]][tc].astype(str)
+                temp_curr = X[X[tc]==time_set[i]][ic] + X[X[tc]==time_set[i]][tc].astype(str)
                 temp_curr = temp_curr.value_counts().to_dict()
 
-                temp_prev = df[df[tc]==time_set[i-1]][ic] + df[df[tc]==time_set[i-1]][tc].astype(str)
+                temp_prev = X[X[tc]==time_set[i-1]][ic] + X[X[tc]==time_set[i-1]][tc].astype(str)
                 temp_prev = temp_prev.value_counts().to_dict()
                 
                 for key_curr in temp_curr.keys():
@@ -96,114 +79,36 @@ def activity_change(df, tcol):
                         temp_prev[key_prev] = 0
                     map_dict[key_curr] = temp_curr[key_curr] - temp_prev[key_prev] 
                     
-            df[new_id] = df[ic] + df[tc].astype(str)      
-            df[new_id+ '_count_change'] = df[new_id].map(map_dict)
-            df.drop(new_id, axis=1, inplace=True)
-            df[new_id+ '_count_change'].fillna(-999, inplace=True)
+            X[new_id] = X[ic] + X[tc].astype(str)      
+            X[new_id+ '_count_change'] = X[new_id].map(map_dict)
+            X.drop(new_id, axis=1, inplace=True)
+            X[new_id+ '_count_change'].fillna(-999, inplace=True)
                 
-    return df
+    return X
 
-def wlan_ra(df):
+def downsample(X,y):
     
-    if 'wlan.ra' in df.columns:
-        df['wlan.ra'].fillna( 'Missing:Missing:Missing:Missing:Missing:Missing', inplace = True )
-        temp = df['wlan.ra'].str.split(':', n = 5, expand=True)
-        for i in range(6):
-            df['wlan.ra_' + str(i)] = temp[i]
-        df.drop('wlan.ra', axis=1, inplace = True)
-    
-    return df
+    import numpy as np
+    from sklearn.utils import resample
 
-def wlan_da(df):
+    X_majority = X[X[config.TARGET]=='normal']
+    X_minority = X[X[config.TARGET]!='normal']
+        
+    n = int(np.round( len(X_minority) / 3 ))
+                
+    X_majority_downsampled = resample(X_majority,
+                                       replace=False,
+                                       n_samples=n,
+                                       random_state=94019)
     
-    if 'wlan.da' in df.columns:
-        df['wlan.da'].fillna( 'Missing:Missing:Missing:Missing:Missing:Missing', inplace = True )
-        temp = df['wlan.da'].str.split(':', n = 5, expand=True)
-        for i in range(6):
-            df['wlan.da_' + str(i)] = temp[i]
-        df.drop('wlan.da', axis=1, inplace = True)
+    X_downsampled = pd.concat([X_majority_downsampled, X_minority])
+    X_downsampled.sort_index(inplace=True) 
     
-    return df
-
-def wlan_ta(df):
-    
-    if 'wlan.ta' in df.columns:
-        df['wlan.ta'].fillna( 'Missing:Missing:Missing:Missing:Missing:Missing', inplace = True )
-        temp = df['wlan.ta'].str.split(':', n = 5, expand=True)
-        for i in range(6):
-            df['wlan.ta_' + str(i)] = temp[i]
-        df.drop('wlan.ta', axis=1, inplace = True)
-    
-    return df
-
-def wlan_sa(df):
-    
-    if 'wlan.sa' in df.columns:
-        df['wlan.sa'].fillna( 'Missing:Missing:Missing:Missing:Missing:Missing', inplace = True )
-        temp = df['wlan.sa'].str.split(':', n = 5, expand=True)
-        for i in range(6):
-            df['wlan.sa_' + str(i)] = temp[i]
-        df.drop('wlan.sa', axis=1, inplace = True)
-    
-    return df
-
-def wlan_bssid(df):
-    
-    if 'wlan.bssid' in df.columns:
-        df['wlan.bssid'].fillna( 'Missing:Missing:Missing:Missing:Missing:Missing', inplace = True )
-        temp = df['wlan.bssid'].str.split(':', n = 5, expand=True)
-        for i in range(6):
-            df['wlan.bssid_' + str(i)] = temp[i]
-        df.drop('wlan.bssid', axis=1, inplace = True)
-    
-    return df
-
-def wlan_ba_bm(df):
-    
-    if 'wlan.ba.bm' in df.columns:
-        df['wlan.ba.bm'].fillna( 'Missing:Missing:Missing:Missing:Missing:Missing:Missing:Missing', inplace = True )
-        temp = df['wlan.ba.bm'].str.split(':', n = 7, expand=True)
-        for i in range(8):
-            df['wlan.ba.bm_' + str(i)] = temp[i]
-        df.drop('wlan.ba.bm', axis=1, inplace = True)
-    
-    return df
-
-def wlan_mgt_fixed_current_ap(df):
-    
-    if 'wlan_mgt_fixed_current_ap' in df.columns:
-        df['wlan.ba.bm'].fillna( 'Missing:Missing:Missing:Missing:Missing:Missing:Missing:Missing', inplace = True )
-        temp = df['wlan_mgt_fixed_current_ap'].str.split(':', n = 7, expand=True)
-        for i in range(8):
-            df['wlan_mgt_fixed_current_ap_' + str(i)] = temp[i]
-        df.drop(['wlan_mgt_fixed_current_ap'], axis=1, inplace = True)
-    
-    return df
-
-def radiotap_dbm_antsignal(df):
-    
-    if 'radiotap.dbm_antsignal' in df.columns:
-        df['radiotap.dbm_antsignal'].fillna( 1, inplace = True)
-    
-    return df
+    return X_downsampled, X_downsampled[config.TARGET]
 
 if __name__ == "__main__":
     
-    from data_management import load_dataset, downsample
-    from feat_eng_categ import categ_missing_encoder
-    
-    train_orig = load_dataset(file_name='AWID-CLS-R-Trn.csv')
-    train_ds = downsample(train_orig)
-    
-    cme = categ_missing_encoder(features=config.ID_FEATURES)
-    X = cme.fit_transform(train_ds)
- 
-    fc = feature_creation()
-    X = fc.fit_transform(X)
-    
-    new_vars = [var for var in X.columns if var not in train_ds]
-    X_new_vars = X[new_vars]
-    X_new_vars = X_new_vars.head(1000)
+    print('will update this part of feat_creation.py later.')
     
     
     

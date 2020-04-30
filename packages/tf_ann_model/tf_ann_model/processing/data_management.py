@@ -17,7 +17,7 @@ _logger = logging.getLogger(__name__)
 
 def load_dataset(*, file_name: str ) -> pd.DataFrame:
     
-    _data = pd.read_csv(f'{config.DATASET_DIR}/{file_name}', header = 0, names = headers, na_values=['?'])
+    _data = pd.read_csv(f'{config.DATASET_DIR}/{file_name}', header = 0, names = headers, na_values=['?'],  error_bad_lines=False, warn_bad_lines=False)
     
     return _data
 
@@ -38,7 +38,6 @@ def restore_target(y):
     import numpy as np
     from sklearn.externals import joblib
     
-    from 
     y = np.argmax(y, axis=1)
     encoder = joblib.load(config.ENCODER_PATH)
     y = encoder.inverse_transform(y)
@@ -137,6 +136,8 @@ def prepare_target_keras(y, train_data):
     joblib.dump(encoder, config.ENCODER_PATH)
     
     return y
+
+
 headers = [
 'frame.interface_id',
 'frame.dlt',
@@ -296,3 +297,13 @@ headers = [
 ]
 
 
+if __name__ == '__main__':
+    
+    data = load_dataset(file_name=config.TRAINING_DATA_FILE)
+    d = data.copy()
+    
+    X, y = prepare_data(data,True)
+    XX,yy = prepare_data(d,False)
+    
+    print( sum(X.index() != XX.index()) )
+    

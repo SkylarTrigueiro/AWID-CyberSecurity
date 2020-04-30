@@ -4,6 +4,9 @@ from sklearn.externals import joblib
 from sklearn.pipeline import Pipeline
 from classification_model.config import config
 from classification_model import __version__ as _version
+from classification_model.processing.feat_eng_categ import categ_missing_encoder
+from classification_model.processing.feat_creation import feature_creation
+
 
 import logging
 
@@ -15,10 +18,20 @@ def load_dataset(*, file_name: str ) -> pd.DataFrame:
     
     return _data
 
+def prepare_data(df, train_data):
+    
+    
+    X,y = get_target(df)  
+    cme = categ_missing_encoder(config.ID_FEATURES)
+    df = cme.fit_transform(df)
+    X,y = get_target(df)
+    X,y = feature_creation(X, y)
+
+    return X,y
+
 def get_target(df):
 
     y = df[config.TARGET]
-    df.drop(config.TARGET, axis = 1, inplace = True)
     
     return df, y
 

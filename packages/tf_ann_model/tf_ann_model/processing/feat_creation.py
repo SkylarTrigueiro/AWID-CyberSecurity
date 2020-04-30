@@ -16,8 +16,10 @@ def feature_creation(X,y):
         X = activity_count(X, tcol)
         X = activity_change(X, tcol)
     
+        print('config.DOWNSAMPLE_DATA = ', config.DOWNSAMPLE_DATA)
         if( config.DOWNSAMPLE_DATA ):
             X,y = downsample(X, y)
+            print('downsampling aplied')
         
         # Save until target is no longer needed in data.
         X.drop( config.TARGET, axis=1, inplace=True)
@@ -107,7 +109,6 @@ def downsample(X,y):
 
 if __name__ == "__main__":
     
-    print('will update this part of feat_creation.py later.')
-    
+    print('TBD')
     
     

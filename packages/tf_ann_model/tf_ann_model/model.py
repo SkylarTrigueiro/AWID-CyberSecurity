@@ -6,7 +6,7 @@ from tf_ann_model.processing.data_management import load_dataset, prepare_data
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.externals import joblib
 
-from tf_ann_model.processing.feat_eng_categ import categ_missing_encoder, rare_label_encoder, label_encoder
+from tf_ann_model.processing.feat_eng_categ import categ_missing_encoder, rare_label_encoder, one_hot_encoder, label_encoder
 from tf_ann_model.processing.feat_eng_num import outlier_capping, ArbitraryNumberImputer
 from tf_ann_model.processing.feat_creation import feature_creation
 from tf_ann_model.processing.feat_selection import remove_constant, remove_quasi_constant, selected_drop_features, remove_correlated_features
@@ -18,8 +18,8 @@ import tensorflow as tf
 def ann_model( input_shape=(40,), optimizer = 'adam', loss='categorical_crossentropy', metrics = 'accuracy'):
     
     model = models.Sequential()
-    model.add( layers.Dense(128, activation = 'relu', input_shape=(input_shape)))
-    model.add( layers.Dense(128, activation = 'relu'))
+    model.add( layers.Dense(32, activation = 'relu', input_shape=(input_shape)))
+    model.add( layers.Dense(32, activation = 'relu'))
     model.add( layers.Dense(4, activation='softmax'))
     model.compile( optimizer=optimizer, loss=loss, metrics=[metrics])
     
@@ -47,8 +47,9 @@ fe_pipe = Pipeline([
                 ('cme2', categ_missing_encoder()),
                 ('rle', rare_label_encoder(0.0001)),                
                 ('ani', ArbitraryNumberImputer()),
-                ('le', label_encoder()),
                 ('sd', selected_drop_features()),
+                #('ohe', one_hot_encoder(max_labels=256)),
+                ('le', label_encoder()),
                 ('rc', remove_constant()),
                 ('rqc', remove_quasi_constant()),
                 ('rcf', remove_correlated_features()),
@@ -71,8 +72,8 @@ if config.INCLUDE_VALIDATION_DATA:
                           batch_size= config.BATCH_SIZE,
                           epochs=config.EPOCHS,
                           validation_data = (X_val, y_val),
-                          verbose=1#,  # progress bar - required for CI job
-                          #callbacks=callbacks_list
+                          verbose=1,  # progress bar - required for CI job
+                          callbacks=callbacks_list
                           )
     
 else:
@@ -80,8 +81,8 @@ else:
     ann_classifier = KerasClassifier(build_fn=ann_model,
                           batch_size= config.BATCH_SIZE,
                           epochs=config.EPOCHS,
-                          verbose=1#,  # progress bar - required for CI job
-                          #callbacks=callbacks_list
+                          verbose=1,  # progress bar - required for CI job
+                          callbacks=callbacks_list
                           )
 
 if __name__ == '__main__':

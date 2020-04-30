@@ -19,7 +19,9 @@ def run_training(save_result: bool = True):
     #read training data
     data = load_dataset(file_name=config.TRAINING_DATA_FILE)
     
+    print('data shape before', data.shape)
     X_train, y_train = prepare_data(data, True)
+    print('X_train.shape after', X_train.shape)
     
     pipeline.tf_ann_pipe.fit(X_train, y_train)
     

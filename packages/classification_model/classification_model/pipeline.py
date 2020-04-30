@@ -30,8 +30,6 @@ xgboost_params = {#'bagging_fraction': 0.8993155305338455,
 PIPELINE_NAME = 'xgboost_classifier'
 
 xgboost_pipe = Pipeline([
-                ('cme1', categ_missing_encoder(config.ID_FEATURES)),
-                ('fc', feature_creation()),
                 ('oc', outlier_capping(distribution='quantiles')),
                 ('cme2', categ_missing_encoder()),
                 ('rle', rare_label_encoder(0.0001)),                
@@ -43,6 +41,19 @@ xgboost_pipe = Pipeline([
                 ('rcf', remove_correlated_features()),
                 ('scaler', StandardScaler()),
                 ('xgb', xgb.XGBClassifier(**xgboost_params, n_estimators = 10000, n_jobs=6))
+            ])
+
+data_pipe = Pipeline([
+                ('oc', outlier_capping(distribution='quantiles')),
+                ('cme2', categ_missing_encoder()),
+                ('rle', rare_label_encoder(0.0001)),                
+                ('ani', ArbitraryNumberImputer()),
+                ('le', label_encoder()),
+                ('sd', selected_drop_features()),
+                ('rc', remove_constant()),
+                ('rqc', remove_quasi_constant()),
+                ('rcf', remove_correlated_features()),
+                ('scaler', StandardScaler())
             ])
 '''
 lightgbm_params = {
