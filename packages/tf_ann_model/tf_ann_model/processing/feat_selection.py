@@ -44,7 +44,8 @@ class remove_constant( BaseEstimator, TransformerMixin ):
         
     def transform(self, X, y=None):
         
-        X.drop(self.drop_features, axis=1, inplace=True)
+        self.features_to_drop = [feat for feat in self.drop_features if feat in X.columns]
+        X.drop(self.features_to_drop, axis=1, inplace=True)
         
         return X
 
@@ -74,7 +75,8 @@ class remove_quasi_constant( BaseEstimator, TransformerMixin ):
         
     def transform(self, X, y=None):
         
-        X.drop(self.drop_features, axis=1, inplace=True)
+        self.features_to_drop = [feat for feat in self.drop_features if feat in X.columns]
+        X.drop(self.features_to_drop, axis=1, inplace=True)
         
         return X
 
@@ -106,7 +108,8 @@ class remove_duplicates( BaseEstimator, TransformerMixin ):
         
     def transform(self, X, y=None):
         
-        X.drop(self.drop_features, axis=1, inplace=True)
+        self.features_to_drop = [feat for feat in self.drop_features if feat in X.columns]
+        X.drop(self.features_to_drop, axis=1, inplace=True)
         
         return X
     
@@ -140,7 +143,8 @@ class remove_correlated_features( BaseEstimator, TransformerMixin ):
         
     def transform(self, X, y=None):
         
-        X.drop(self.corr_feat, axis=1, inplace=True)
+        self.features_to_drop = [feat for feat in self.corr_feat if feat in X.columns]
+        X.drop(self.features_to_drop, axis=1, inplace=True)
         
         return X
                      
@@ -166,7 +170,8 @@ class selected_drop_features( BaseEstimator, TransformerMixin ):
     
     def transform(self, X, y=None):
         
-        X.drop(self.features, axis=1, inplace=True)
+        self.features_to_drop = [feat for feat in self.features if feat in X.columns]
+        X.drop(self.features_to_drop, axis=1, inplace=True)
         
         return X
     

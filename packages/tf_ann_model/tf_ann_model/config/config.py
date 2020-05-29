@@ -29,7 +29,7 @@ ENCODER_NAME = 'encoder'
 
 # Model Parameters
 INCLUDE_VALIDATION_DATA = True
-DOWNSAMPLE_DATA = True
+DOWNSAMPLE_DATA = False
 
 # ANN Parameters
 BATCH_SIZE = 1000
@@ -70,8 +70,7 @@ QUASI_CONSTANT_FEATURES = []
 DUPLICATE_FEATURES = []
 
 TIME_FEATURES = ['frame.time_epoch',
-                 'passed1second',  
-               ]
+                 'passed1second']
 
 ID_FEATURES = ['wlan.wep.iv', 
                'wlan.wep.icv', 
