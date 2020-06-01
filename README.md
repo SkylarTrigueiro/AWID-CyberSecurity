@@ -1,8 +1,8 @@
 ## Table of Contents
 * [Overview](#overview)
 * [Data](#data)
-* [Data pre-processing](#Data pre-processing)
-* [Model Selection](#Model Selection)
+* [Data pre-processing](#Data-pre-processing)
+* [Model Selection](#Model-Selection)
 * [Cross-validation](#Cross-validation)
 * [Results](#results)
 
