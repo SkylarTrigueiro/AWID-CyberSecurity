@@ -1,20 +1,34 @@
 # Overview
 
-This project is about detecting cyber attacks over a wifi network and how I developed a classifier with (relatively) an overall recall score of 83%. In this dataset, wifi activity is classified as either normal, flooding, injection or impersonation.
+The goal of this project is to develop a classifier to detect cyber attacks over a wifi network. Since the cost of incorrectly classifying normal activity as a cyber attack is less than the cost of classifying a cyber attack as normal activity, then the model that has higher recall than precision will be favored. 
 
 ## Data
 
 The data from this project is sourced from the AWID project (http://icsdweb.aegean.gr/awid/index.html). If you would like to use this data, please go to their website and ask for permission. The data is broken up into 4 different data sets, A larger data set (F) and a reduced version (R). For each dataset size, there is one that generalizes wifi activity into those mentioned earlier (CLS) and one that has more differentiation for each type of cyber attack (ATK). I will be focusing on the reduced dataset with more generalized classes for this project.
 
-The following plot shows the distribution of the time delta of traffic over the hour that this data is recorded. Time is measured in seconds, hence why the x-axis is from 0 to 3600. It's a useful image because it gives a good sense of the distribution of the different targets over time
+The distribution of the target classes in the trainind data is imbalanced and is as follows:
+
+|              | Normal | Injection | Impersonation | Flooding |
+|--------------|--------|-----------|---------------|----------|
+| Distribution | 91.0%  | 3.6%      | 2.7%          | 2.7%     |
+
+and in the test data the distribution is:
+
+|              | Normal | Injection | Impersonation | Flooding |
+|--------------|--------|-----------|---------------|----------|
+| Distribution | 92.2%  | 2.9%      | 3.5%          | 1.4%     |
+
+To address the imbalance of the data set, I will apply downsampling until the count of 'normal' targets is the same as average of the counts of the other targets. 
+
+As the goal is to predict future cyber attacks, I need to examine the distribution of cyber attacks over time of the training and test data. The following plot shows the distribution of the time delta of traffic over the hour that this data is recorded. Time is measured in seconds, hence why the x-axis is from 0 to 3600.
 
 ![](images/train.png)
 
-The test set ecompasses only 20 minutes of traffic data.
+and the following plot shows test set, which takes place over 20 minutes.
 
 ![](images/test.png)
 
-The data 
+Note that the distribution of the target values is time dependent and the cyber attacks occur in clusters. 
 
 ## Data pre-processing
 
