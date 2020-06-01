@@ -39,7 +39,24 @@ I have not yet discovered any type of cross-validation that I have found to be u
 
 ## Results
 
-My best performing model is the artificial neural network using tensorflow 2.0. Using this model I achieved an accuracy of only 75%, but I achieved a recall of 83%. The following table shows all of the results.
+My best performing model is the artificial neural network using tensorflow 2.0. Using this model I achieved an accuracy of only 75%, but I achieved a recall of 83%. The following table and confusion matrix summarizes the results of the ANN first on the training set:
+
+|               | precision | recall | f1-score | support |
+|---------------|-----------|--------|----------|---------|
+| flooding      | 0.95      | 1.00   | 0.97     | 48484   |
+| impersonation | 0.22      | 1.00   | 0.36     | 48522   |
+| injection     | 1.00      | 1.00   | 1.00     | 65379   |
+| normal        | 1.00      | 0.89   | 0.94     | 1633189 |
+|               |           |        |          |         |
+| accuracy      |           |        | 0.90     | 1795574 |
+| macro avg     | 0.79      | 0.97   | 0.82     | 1795574 |
+| weighted avg  | 0.98      | 0.90   | 0.93     | 1795574 |
+
+
+![](images/confusion_matrix_train.png)
+
+and the following table and confusion matrix summarizes the model's performance on the test set:
+
 
 |               | precision | recall | f1-score | support |
 |---------------|-----------|--------|----------|---------|
@@ -51,5 +68,7 @@ My best performing model is the artificial neural network using tensorflow 2.0. 
 | accuracy      |           |        | 0.75     | 575642  |
 | macro avg     | 0.70      | 0.83   | 0.67     | 575642  |
 | weighted avg  | 0.96      | 0.75   | 0.82     | 575642  |
+
+![](images/confusion_matrix_test.png)
 
 The noteworthy performance is on injection and impersonation where I scored a 99% and 97% in recall. These results might seem poor, but keep in mind that the cost of asking a user to verify their information again is much lower than the cost of having your network accessed by an intruder. 
