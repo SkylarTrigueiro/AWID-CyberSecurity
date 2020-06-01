@@ -1,4 +1,12 @@
-# Overview
+## Table of Contents
+* [Overview](#overview)
+* [Data](#data)
+* [Data pre-processing](#dpp)
+* [Model Selection](#ms)
+* [Cross-Validation](#cv)
+* [Results](#results)
+
+## Overview
 
 The goal of this project is to develop a classifier to detect cyber attacks over a wifi network. Since the cost of incorrectly classifying normal activity as a cyber attack is less than the cost of classifying a cyber attack as normal activity, then the model that has higher recall than precision will be favored. 
 
