@@ -20,15 +20,17 @@ and in the test data the distribution is:
 
 To address the imbalance of the data set, I will apply downsampling until the count of 'normal' targets is the same as average of the counts of the other targets. 
 
-As the goal is to predict future cyber attacks, I need to examine the distribution of cyber attacks over time of the training and test data. The following plot shows the distribution of the time delta of traffic over the hour that this data is recorded. Time is measured in seconds, hence why the x-axis is from 0 to 3600.
+As the goal is to predict future cyber attacks, I need to examine the distribution of cyber attacks over time of the training and test data. The following plot shows the distribution of the time delta of traffic over the hour that this data is recorded or 3600 seconds.
 
 ![](images/train.png)
 
-and the following plot shows test set, which takes place over 20 minutes.
+and the following plot shows test set, which takes place over 20 minutes or 1200 seconds.
 
 ![](images/test.png)
 
-Note that the distribution of the target values is time dependent and the cyber attacks occur in clusters. 
+Note that the distribution of the target values is time dependent and the cyber attacks occur in clusters. If we combine the train and test data, we can see how far apart in time they were recorded.
+
+![](images/train_test.png)
 
 ## Data pre-processing
 
