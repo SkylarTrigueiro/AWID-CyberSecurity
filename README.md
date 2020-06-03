@@ -19,12 +19,14 @@ The distribution of the target classes in the trainind data is imbalanced and is
 |              | Normal | Injection | Impersonation | Flooding |
 |--------------|--------|-----------|---------------|----------|
 | Distribution | 91.0%  | 3.6%      | 2.7%          | 2.7%     |
+| Count        | 1,633,189| 65,379     | 48,522         | 48,484    |
 
 and in the test data the distribution is:
 
 |              | Normal | Injection | Impersonation | Flooding |
 |--------------|--------|-----------|---------------|----------|
 | Distribution | 92.2%  | 2.9%      | 3.5%          | 1.4%     |
+| Count        | 530,784 | 16,682     | 20,079         | 8,097
 
 To address the imbalance of the data set, I will apply downsampling until the count of 'normal' targets is the same as average of the counts of the other targets. 
 
