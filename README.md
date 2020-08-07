@@ -98,3 +98,9 @@ and the following table and confusion matrix summarizes the model's performance 
 ![](images/confusion_matrix_test.png)
 
 The noteworthy performance is on injection and impersonation where I scored a 99% and 97% in recall. These results might seem poor, but keep in mind that the cost of asking a user to verify their information again is much lower than the cost of having your network accessed by an intruder. 
+
+## References
+
+The EDA visualizations code originally came from the following Kaggle notebook for
+a binary classification problem. I've made some modifications to the code for this problem.
+https://www.kaggle.com/alijs1/ieee-transaction-columns-reference
