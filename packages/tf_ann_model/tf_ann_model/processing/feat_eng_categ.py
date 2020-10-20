@@ -46,6 +46,8 @@ class rare_label_encoder(BaseEstimator, TransformerMixin):
             raise ValueError('Number of columns in dataset is different from training set used to fit the encoder')
             
         X = X.copy()
+        for feat in self.features:
+            X[feat] = np.where(X[feat].isin(self.encoder_dict_[feat]), X[feat], 'Rare')
 
         return X
     
